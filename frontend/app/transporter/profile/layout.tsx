@@ -16,7 +16,7 @@ const Page = ( { children }: LayoutProps) => {
 
     const handleLogout = async () => {
         try {
-            await fetch("/api/transporter/logout", {
+            await fetch("/api/logout", {
                 method: "POST",
                 credentials: "include",
             });

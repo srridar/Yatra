@@ -23,7 +23,6 @@ interface RideMapProps {
     filteredVehicles: Vehicle[];
     selectedVehicle: Vehicle | null;
     setSelectedVehicle: ( vehicle: Vehicle | null) => void;
-
     handleMapClick: ( lat: number, lng: number) => void;
 }
 

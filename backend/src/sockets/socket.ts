@@ -4,7 +4,7 @@
 import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { socketAuth } from './socketAuth.js';
-import { handleSocketConnection } from "./handlers/connectionHandler";
+import { handleSocketConnection } from "./handlers/connectionHandler.js";
 
 export const initializeSocket = (HttpServer: HttpServer) => {
        const io= new Server(HttpServer, {
