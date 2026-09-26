@@ -2,12 +2,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter  } from "next/navigation";
 
 export default function LoginPage() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("passenger");
 
+  const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
     try {
@@ -29,6 +31,7 @@ export default function LoginPage() {
         console.log(data.message);
         return
       }   
+      router.push("/dashboard")
 
     } catch (err) {
       console.log("Error at login logic :", err)

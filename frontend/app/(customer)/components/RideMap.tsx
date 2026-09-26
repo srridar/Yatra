@@ -1,174 +1,189 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { MapContainer,  TileLayer,  Marker,  Popup,  Polyline,  useMap,} from "react-leaflet";
 import L from "leaflet";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  Polyline,
-  useMapEvents,
-} from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-
-type VehicleType = "car" | "ev" | "bike";
+import { useEffect } from "react";
 
 interface Vehicle {
-  id: number;
-  type: VehicleType;
-  lat: number;
-  lng: number;
-  name: string;
-  seats: number;
-  price: number;
-  eta: number;
+    id: number;
+    type: "car" | "ev" | "bike";
+    lat: number;
+    lng: number;
+    name: string;
+    seats: number;
+    eta: number;
 }
+
+type Coordinates = [number, number];
 
 interface RideMapProps {
-  userCoords: [number, number];
-  destinationCoords: [number, number] | null;
-  filteredVehicles: Vehicle[];
-  selectedVehicle: Vehicle | null;
-  setSelectedVehicle: (vehicle: Vehicle) => void;
-  handleMapClick: (lat: number, lng: number) => void;
+    userCoords: Coordinates;
+    destinationCoords: | Coordinates | null;
+    routeCoordinates: Coordinates[];
+    filteredVehicles: Vehicle[];
+    selectedVehicle: Vehicle | null;
+    setSelectedVehicle: ( vehicle: Vehicle | null) => void;
+
+    handleMapClick: ( lat: number, lng: number) => void;
 }
 
-function MapClickHandler({ onMapClick,}: { onMapClick: (lat: number, lng: number) => void;}) {
-  useMapEvents({
-    click(event) {
-      onMapClick(event.latlng.lat, event.latlng.lng);
-    },
-  });
 
-  return null;
+
+function RouteView({ routeCoordinates}: { routeCoordinates: Coordinates[]}) {
+    const map = useMap();
+    useEffect(() => {
+        if ( !routeCoordinates || routeCoordinates.length === 0) {
+            return;
+        }
+        const bounds = L.latLngBounds( routeCoordinates);
+        map.fitBounds(bounds, {
+            padding: [60, 60],
+            maxZoom: 16,
+        });
+    }, [
+        routeCoordinates,
+        map,
+    ]);
+
+    return null;
 }
 
-export default function RideMap({
-  userCoords,
-  destinationCoords,
-  filteredVehicles,
-  setSelectedVehicle,
-  handleMapClick,
-}: RideMapProps) {
-  const [icons, setIcons] = useState<{
-    car: L.Icon;
-    ev: L.Icon;
-    bike: L.Icon;
-    user: L.Icon;
-    destination: L.Icon;
-  } | null>(null);
 
-  useEffect(() => {
-    setIcons({
-      car: L.icon({
-        iconUrl: "/car1.png",
-        iconSize: [42, 42],
-        iconAnchor: [21, 21],
-      }),
 
-      ev: L.icon({
-        iconUrl: "/ev_car.webp",
-        iconSize: [42, 42],
-        iconAnchor: [21, 21],
-      }),
+function MapClickHandler({ handleMapClick}: { handleMapClick: ( lat: number, lng: number) => void}) {
+    const map = useMap();
 
-      bike: L.icon({
-        iconUrl: "/bike.webp",
-        iconSize: [42, 42],
-        iconAnchor: [21, 21],
-      }),
+    useEffect(() => {
+        const handleClick = ( event: L.LeafletMouseEvent) => {
+            handleMapClick(  event.latlng.lat, event.latlng.lng );
+        };
+        map.on( "click", handleClick);
+        return () => {
+            map.off(  "click",  handleClick);
+        };
+    }, [
+        map,
+        handleMapClick,
+    ]);
 
-      user: L.icon({
+    return null;
+}
+
+
+
+export default function RideMap({ userCoords, destinationCoords,
+    routeCoordinates, filteredVehicles, selectedVehicle,
+    setSelectedVehicle, handleMapClick,}: RideMapProps) {
+   
+
+    const userIcon = L.icon({
         iconUrl: "/user.png",
         iconSize: [42, 42],
         iconAnchor: [21, 21],
-      }),
-
-      destination: L.icon({
-        iconUrl: "/destination.png",
-        iconSize: [42, 42],
-        iconAnchor: [21, 42],
-      }),
     });
-  }, []);
 
-  if (!icons) {
+    const destinationIcon =
+        L.icon({
+            iconUrl: "/destination.png",
+            iconSize: [42, 42],
+            iconAnchor: [21, 42],
+        });
+
+    const carIcon = L.icon({
+        iconUrl: "/car1.png",
+        iconSize: [42, 42],
+        iconAnchor: [21, 21],
+    });
+
+    const evIcon = L.icon({
+        iconUrl: "/ev_car.webp",
+        iconSize: [42, 42],
+        iconAnchor: [21, 21],
+    });
+
+    const bikeIcon = L.icon({
+        iconUrl: "/bike.webp",
+        iconSize: [42, 42],
+        iconAnchor: [21, 21],
+    });
+
+    const getVehicleIcon = (  type: Vehicle["type"]) => {
+        if (type === "car") {
+            return carIcon;
+        }
+
+        if (type === "ev") {
+            return evIcon;
+        }
+
+        return bikeIcon;
+    };
+
     return (
-      <div className="h-full flex items-center justify-center bg-gray-100">
-        <p className="text-sm text-gray-500">Loading map...</p>
-      </div>
+        <MapContainer center={userCoords} zoom={14} scrollWheelZoom={true} className="h-full w-full">
+         
+            <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <MapClickHandler handleMapClick={ handleMapClick }/>
+
+            <RouteView  routeCoordinates={  routeCoordinates} />
+            <Marker position={userCoords}  icon={userIcon}>
+                <Popup>
+                    <div className="text-sm">
+                        <strong>
+                            Pickup Location
+                        </strong>
+                    </div>
+                </Popup>
+            </Marker>
+
+            {destinationCoords && (
+                <Marker  position={ destinationCoords } icon={ destinationIcon}>
+                    <Popup>
+                        <div className="text-sm">
+                            <strong>
+                                Destination
+                            </strong>
+                        </div>
+                    </Popup>
+                </Marker>
+            )}
+
+            {routeCoordinates.length >
+                0 && (
+                <Polyline
+                    positions={  routeCoordinates }
+                    pathOptions={{
+                        color: "#2563eb",
+                        weight: 6,
+                        opacity: 0.9,
+                        lineCap: "round",
+                        lineJoin: "round",
+                    }}
+                />
+            )}
+
+
+            {filteredVehicles.map(
+                (vehicle) => (
+                    <Marker
+                        key={vehicle.id}
+                        position={[
+                            vehicle.lat,
+                            vehicle.lng,
+                        ]}
+                        icon={getVehicleIcon( vehicle.type)}
+                        eventHandlers={{ click: () => setSelectedVehicle(vehicle) }}
+                    >
+                        <Popup>
+                            <div className="min-w-[150px]">
+                                <p className="font-bold">  { vehicle.name}</p>
+                                <p className="text-xs text-gray-500">  { vehicle.eta}{" "} min away </p>
+                                <p className="text-xs text-gray-500">  {  vehicle.seats}{" "}seats</p>
+                            </div>
+                        </Popup>
+                    </Marker>
+                )
+            )}
+        </MapContainer>
     );
-  }
-
-  const routeCoords: [number, number][] = destinationCoords
-    ? [
-        userCoords,
-        [
-          (userCoords[0] + destinationCoords[0]) / 2,
-          (userCoords[1] + destinationCoords[1]) / 2,
-        ],
-        destinationCoords,
-      ]
-    : [];
-
-  return (
-    <MapContainer
-      center={userCoords}
-      zoom={14}
-      className="h-full w-full"
-      zoomControl={false}
-    >
-      <TileLayer
-        attribution="&copy; OpenStreetMap contributors"
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-
-      <MapClickHandler onMapClick={handleMapClick} />
-
-      <Marker position={userCoords} icon={icons.user}>
-        <Popup>Your current location</Popup>
-      </Marker>
-
-      {destinationCoords && (
-        <Marker position={destinationCoords} icon={icons.destination}>
-          <Popup>Destination</Popup>
-        </Marker>
-      )}
-
-      {filteredVehicles.map((vehicle) => (
-        <Marker
-          key={vehicle.id}
-          position={[vehicle.lat, vehicle.lng]}
-          icon={icons[vehicle.type]}
-          eventHandlers={{
-            click: () => setSelectedVehicle(vehicle),
-          }}
-        >
-          <Popup>
-            <div>
-              <strong>{vehicle.name}</strong>
-              <br />
-              {vehicle.seats} seats
-              <br />
-              ETA: {vehicle.eta} min
-              <br />
-              Rs. {vehicle.price}
-            </div>
-          </Popup>
-        </Marker>
-      ))}
-
-      {routeCoords.length > 1 && (
-        <Polyline
-          positions={routeCoords}
-          pathOptions={{
-            color: "#2563eb",
-            weight: 4,
-            dashArray: "6, 6",
-          }}
-        />
-      )}
-    </MapContainer>
-  );
 }
