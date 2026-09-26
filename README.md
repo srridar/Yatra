@@ -108,3 +108,50 @@ transporter(rider)
 
 
 Note: Frontend is implemented less as compare to backend . so there is not that much in frontend side in this week 
+
+
+
+
+
+## Second Week Report
+
+During the second week, we fixed several UI issues, mainly related to the Admin and Transporter sections that were identified during the first week.
+
+### Admin Features
+
+In the second week, the Admin section was improved with the following features:
+
+1. Admin can fetch and view their profile and update/edit their profile information.
+2. Admin can change their password.
+3. Admin can view Transporters and Customers.
+4. Admin can log out.
+
+### Transporter Features
+
+The Transporter section now includes the following features:
+
+1. Transporter can fetch and view their profile and update/edit their profile information.
+2. Transporter can change their password.
+3. Transporter can fill out and submit the KYC form.
+
+### Passenger Features
+
+The Passenger section now includes the following features:
+
+1. Passenger can select their current location and destination.
+2. Passenger can find the route between the current location and destination.
+3. Passenger can view the distance and estimated fare for different types of vehicles, such as cars, bikes, EVs, etc.
+
+### Backend Logic
+
+We also implemented the backend logic for passenger ride requests.
+
+When a passenger selects their current location and destination and searches for a ride, the system identifies the five nearest transporters and sends them ride request notifications using Socket.IO.
+
+If a transporter accepts the ride request, a ride is created and the transporter who accepts the request first is assigned to that ride.
+
+We have also implemented some of the Socket.IO logic required to provide real-time updates during the ride.
+
+## Next Week
+
+Next week, we will mainly focus on completing approximately 70–80% of the passenger ride request flow and the transporter ride acceptance process.
