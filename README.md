@@ -155,3 +155,32 @@ We have also implemented some of the Socket.IO logic required to provide real-ti
 ## Next Week
 
 Next week, we will mainly focus on completing approximately 70–80% of the passenger ride request flow and the transporter ride acceptance process.
+
+
+
+
+##  Third week Report 
+
+
+During third week, we focused on implementing the core functionalities of the passenger ride request flow and the transporter ride acceptance process. We also made significant improvements to the user interface and fixed several bugs that were reported in the previous weeks. we have implemented  socket for
+-  to send ride request to nearby transporters
+-  to join a ride room by transporter and passenger after ride is created
+-  to track real time location update for transporter 
+
+we have also fixed the map related issues in frontend. map is giving errror on page is reloaded we solved that bug.
+we also make the ride request process clear and smooth 
+we created necessary frontend for passenger , in previous week we have created just dashboard , in this week , we create profile , password change, make ride request feature.
+
+we have added vehicle rental model and some related controllers for it.
+we have also change the UI for all users admin, passenger and transporter 
+we have partially setup redux tool kit for state management task like to hold user information
+
+we have also added nodemailer to send contact form information to administrator(admin) email
+
+
+## NExt Week
+
+Next week, we will work on correctly sending ride requests to nearby transporters and managing each step of the ride flow after a ride is started. We will also implement and optimize the required Socket.io events to ensure real-time communication works efficiently throughout the ride.
+
+we will also begin working on our second main feature: **vehicle rental services**.
+
